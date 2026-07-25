@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>Push Evolution 100+</title>
+
+<meta name="description" content="Offline calisthenics coach. 40 push-ups today, 100+ tomorrow.">
+<meta name="theme-color" content="#0B0D0E">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Push Evolution">
+
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- ============================================================
+     TOP BAR — always visible character summary
+     ============================================================ -->
+<header class="topbar" id="topbar">
+  <div class="tb-left">
+    <span class="tb-level" id="tbLevel">1</span>
+    <div class="tb-id">
+      <span class="tb-rank" id="tbRank">Rookie</span>
+      <span class="tb-name">Push Evolution Warrior</span>
+    </div>
+  </div>
+  <div class="tb-right">
+    <div class="streak" id="tbStreak" title="Training streak">
+      <span class="streak-n" id="tbStreakN">0</span>
+      <span class="streak-l">day streak</span>
+    </div>
+  </div>
+  <div class="xpbar" aria-hidden="true"><i id="tbXpFill"></i></div>
+</header>
+
+<main id="app">
+
+<!-- ============================================================
+     SCREEN: TODAY
+     ============================================================ -->
+<section class="screen is-active" id="screen-today">
+  <div class="wrap">
+
+    <p class="eyebrow"><span id="todayDate">—</span> · Day <b id="todayDayNo">1</b> of the journey</p>
+    <h1 class="display">Today's mission</h1>
+    <p class="motto" id="todayMotto">Today you build the person you want to become.</p>
+
+    <!-- Mission card -->
+    <article class="card mission">
+      <div class="mission-head">
+        <div>
+          <span class="label">Target</span>
+          <span class="bignum" id="missionTotal">40</span>
+          <span class="unit">push-ups</span>
+        </div>
+        <div class="mission-meta">
+          <span class="chip" id="missionCycle">Cycle 1 · Foundation</span>
+          <span class="chip chip-dim" id="missionSets">4 sets</span>
+        </div>
+      </div>
+      <ol class="setlist" id="missionSetList"></ol>
+      <button class="btn btn-primary btn-xl" id="btnStart">Start workout</button>
+      <p class="done-note hidden" id="doneNote">Logged today. Come back tomorrow — recovery is part of the program.</p>
+    </article>
+
+    <!-- Evolution countdown -->
+    <article class="card countdown">
+      <span class="label">Next evolution</span>
+      <p class="countdown-n"><b id="evoDays">45</b> days until <span id="evoNext">Strength Awakening</span></p>
+      <div class="track"><i id="evoFill"></i></div>
+      <p class="fine" id="evoChange">Your incline push-up becomes a decline push-up.</p>
+    </article>
+
+    <!-- Quests -->
+    <article class="card quests">
+      <span class="label">Daily quests</span>
+      <ul class="questlist" id="questList"></ul>
+    </article>
+
+    <!-- Weighted challenge shortcut -->
+    <article class="card weighted-card">
+      <span class="label">Weighted challenge</span>
+      <p class="w-line">Current load <b id="wCurrent">2 kg</b> · minimum 20 reps</p>
+      <p class="fine" id="wHint">Log a weighted set to open the strength tree faster.</p>
+      <button class="btn btn-ghost" id="btnWeighted">Log weighted set</button>
+    </article>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN: TRAIN — the rep ring
+     ============================================================ -->
+<section class="screen" id="screen-train">
+  <div class="wrap train-wrap">
+
+    <div class="train-top">
+      <button class="btn-quit" id="btnQuit" aria-label="Leave workout">Leave</button>
+      <div class="mode-pills" role="group" aria-label="Challenge mode">
+        <button class="pill is-on" data-mode="normal">Normal</button>
+        <button class="pill" data-mode="nose">Nose</button>
+        <button class="pill" data-mode="weighted">Weighted</button>
+      </div>
+    </div>
+
+    <p class="eyebrow" id="trainSetLabel">Set 1 of 4</p>
+    <h2 class="exercise" id="trainExercise">Standard push-up</h2>
+    <p class="cue" id="trainCue">Hands under shoulders. Chest to the floor. Lock out at the top.</p>
+
+    <!-- SIGNATURE ELEMENT: the tally ring -->
+    <div class="ring-stage">
+      <svg class="ring" id="ring" viewBox="0 0 240 240" aria-hidden="true">
+        <circle class="ring-base" cx="120" cy="120" r="104"></circle>
+        <circle class="ring-fill" id="ringFill" cx="120" cy="120" r="104"></circle>
+        <g id="ringTicks"></g>
+      </svg>
+      <button class="tapper" id="tapper" aria-label="Count one repetition">
+        <span class="tap-count" id="tapCount">0</span>
+        <span class="tap-of">of <b id="tapTarget">10</b></span>
+        <span class="tap-hint" id="tapHint">Tap at the top of every rep</span>
+      </button>
+      <div class="burst" id="burst" aria-hidden="true"></div>
+    </div>
+
+    <div class="train-progress">
+      <div class="track track-lg"><i id="trainFill"></i></div>
+      <p class="fine"><b id="trainDone">0</b> / <span id="trainTotal">40</span> total reps · <span id="trainXp">0</span> XP earned</p>
+    </div>
+
+    <div class="train-actions">
+      <button class="btn btn-ghost" id="btnMinus">Undo rep</button>
+      <button class="btn btn-primary" id="btnNextSet">Set complete</button>
+    </div>
+
+    <!-- Rest timer overlay -->
+    <div class="rest hidden" id="rest">
+      <span class="label">Rest</span>
+      <p class="rest-n" id="restN">60</p>
+      <p class="rest-next" id="restNext">Up next: Wide push-up</p>
+      <button class="btn btn-ghost" id="btnSkipRest">Skip rest</button>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN: PATH — RPG progression
+     ============================================================ -->
+<section class="screen" id="screen-path">
+  <div class="wrap">
+
+    <p class="eyebrow">Character</p>
+    <h1 class="display">The Path</h1>
+
+    <article class="card hero-card">
+      <div class="hero-row">
+        <div class="hero-level"><span id="pathLevel">1</span><small>LVL</small></div>
+        <div>
+          <p class="hero-rank" id="pathRank">Rookie</p>
+          <p class="fine" id="pathXp">0 / 150 XP</p>
+        </div>
+        <div class="hero-sp">
+          <span id="pathSp">0</span><small>skill points</small>
+        </div>
+      </div>
+      <div class="track"><i id="pathXpFill"></i></div>
+      <p class="fine" id="pathStage">Evolution stage: Foundation Warrior</p>
+    </article>
+
+    <h3 class="sec">Skill trees</h3>
+    <p class="fine sec-note">Branches grow from the work you actually do. Spend a skill point to force a branch forward.</p>
+    <div class="trees" id="trees"></div>
+
+    <h3 class="sec">Boss challenges</h3>
+    <div class="bosses" id="bosses"></div>
+
+    <h3 class="sec">Journey map</h3>
+    <ol class="journey" id="journey"></ol>
+
+    <h3 class="sec">Badges</h3>
+    <div class="badges" id="badges"></div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN: STATS
+     ============================================================ -->
+<section class="screen" id="screen-stats">
+  <div class="wrap">
+
+    <p class="eyebrow">Log book</p>
+    <h1 class="display">Statistics</h1>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <h3 class="sec">Last 7 days</h3>
+    <div class="chart" id="chartWeek"></div>
+
+    <h3 class="sec">Last 30 days</h3>
+    <div class="chart chart-sm" id="chartMonth"></div>
+
+    <h3 class="sec">Exercise report</h3>
+    <p class="fine sec-note">Ranked by how hard you rate the sessions that contain them.</p>
+    <ul class="exlist" id="exReport"></ul>
+
+    <h3 class="sec">Cycle summaries</h3>
+    <div id="cycleSummaries"></div>
+
+    <h3 class="sec">History</h3>
+    <ul class="history" id="history"></ul>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN: YOU — profile, health, settings
+     ============================================================ -->
+<section class="screen" id="screen-you">
+  <div class="wrap">
+
+    <p class="eyebrow">Profile</p>
+    <h1 class="display">You</h1>
+
+    <article class="card">
+      <span class="label">Body</span>
+      <div class="form-grid">
+        <label>Name<input type="text" id="pName" autocomplete="name"></label>
+        <label>Age<input type="number" id="pAge" inputmode="numeric" min="10" max="99"></label>
+        <label>Height (cm)<input type="number" id="pHeight" inputmode="numeric" min="100" max="230"></label>
+        <label>Weight (kg)<input type="number" id="pWeight" inputmode="decimal" min="30" max="250" step="0.1"></label>
+        <label>Body fat (%)<input type="number" id="pFat" inputmode="decimal" min="3" max="60" step="0.1"></label>
+      </div>
+      <button class="btn btn-primary" id="btnSaveProfile">Save profile</button>
+      <p class="fine" id="profileMeta">—</p>
+    </article>
+
+    <article class="card">
+      <span class="label">Goals</span>
+      <ul class="goals">
+        <li>Reach 100+ push-ups in one session</li>
+        <li>Lose fat</li>
+        <li>Maintain muscle</li>
+        <li>Build an athletic body</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <span class="label">Health check-in</span>
+      <div class="form-grid">
+        <label>Weight (kg)<input type="number" id="hWeight" inputmode="decimal" step="0.1"></label>
+        <label>Waist (cm)<input type="number" id="hWaist" inputmode="decimal" step="0.1"></label>
+        <label>Energy 1–5<input type="number" id="hEnergy" inputmode="numeric" min="1" max="5"></label>
+        <label>Sleep 1–5<input type="number" id="hSleep" inputmode="numeric" min="1" max="5"></label>
+      </div>
+      <button class="btn btn-ghost" id="btnSaveHealth">Save check-in</button>
+      <ul class="healthlog" id="healthLog"></ul>
+    </article>
+
+    <article class="card">
+      <span class="label">Settings</span>
+      <label class="toggle"><input type="checkbox" id="sSound"><span>Sound feedback</span></label>
+      <label class="toggle"><input type="checkbox" id="sVibrate"><span>Vibration feedback</span></label>
+      <label class="toggle"><input type="checkbox" id="sConfetti"><span>Celebration effects</span></label>
+      <label class="field">Daily reminder<input type="time" id="sReminder"></label>
+      <button class="btn btn-ghost" id="btnNotify">Enable reminder notifications</button>
+      <p class="fine" id="notifyState">Reminders fire while the app is open or installed in the background.</p>
+      <button class="btn btn-ghost hidden" id="btnInstall">Install app</button>
+    </article>
+
+    <article class="card">
+      <span class="label">Your data</span>
+      <p class="fine">Everything lives on this device. Nothing is sent anywhere.</p>
+      <div class="row-btns">
+        <button class="btn btn-ghost" id="btnExport">Export backup</button>
+        <button class="btn btn-ghost" id="btnImport">Import backup</button>
+      </div>
+      <button class="btn btn-danger" id="btnReset">Erase everything</button>
+      <input type="file" id="fileImport" accept="application/json" hidden>
+      <p class="fine" id="version">—</p>
+    </article>
+
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================
+     BOTTOM NAVIGATION
+     ============================================================ -->
+<nav class="tabbar" id="tabbar">
+  <button class="tab is-on" data-screen="today"><span class="ti">◎</span>Today</button>
+  <button class="tab" data-screen="train"><span class="ti">▲</span>Train</button>
+  <button class="tab" data-screen="path"><span class="ti">⛰</span>Path</button>
+  <button class="tab" data-screen="stats"><span class="ti">▤</span>Stats</button>
+  <button class="tab" data-screen="you"><span class="ti">◍</span>You</button>
+</nav>
+
+<!-- ============================================================
+     OVERLAYS
+     ============================================================ -->
+<div class="sheet-bg hidden" id="sheetBg"></div>
+<div class="sheet hidden" id="sheet" role="dialog" aria-modal="true">
+  <div class="sheet-inner" id="sheetInner"></div>
+</div>
+
+<div class="toast-stack" id="toasts" aria-live="polite"></div>
+
+<div class="levelup hidden" id="levelup" aria-hidden="true">
+  <div class="lu-inner">
+    <p class="lu-k">Level up</p>
+    <p class="lu-n" id="luLevel">2</p>
+    <p class="lu-r" id="luRank">Apprentice</p>
+    <p class="lu-s">+1 skill point</p>
+  </div>
+</div>
+
+<canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+<script src="app.js"></script>
+</body>
+</html>
